@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Respiro Sicilia · Bestellrunde</title>
 <meta name="description" content="Gemeinsame Bestellrunde für Zitrusfrüchte, Mandeln und Olivenöl direkt von sizilianischen Produzenten.">
-<link rel="stylesheet" href="stil.css?v=1">
+<link rel="stylesheet" href="stil.css?v=2">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='38' fill='%23d9622b'/><path d='M50 17c8-12 22-12 28-6-10 2-18 6-28 6z' fill='%233f5a2c'/></svg>">
 </head>
 <body>
@@ -77,6 +77,7 @@
     <h2>Von wem die Ware kommt</h2>
     <p class="leise">Wir kaufen direkt bei den Höfen und ohne Zwischenhandel. So bleibt mehr Geld bei den Menschen, die die Arbeit machen.</p>
     <div class="kisten" id="produzentenListe"></div>
+    <p class="bildnote">Die Bilder sind Symbolbilder und zeigen die Landschaft und die Arbeit, nicht die Höfe selbst.</p>
   </div>
 </section>
 
@@ -142,7 +143,7 @@
   </div>
 </footer>
 
-<script src="runde.js?v=1"></script>
+<script src="runde.js?v=2"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 const ende = new Date(RUNDE.stichtag);
@@ -169,6 +170,7 @@ uhr(); setInterval(uhr, 30000);
 const inhaltListe = (inhalt) => Object.entries(inhalt).map(([p, m]) => `<li>${zahl(m)} ${PRODUKTE[p].einheit} ${PRODUKTE[p].name}</li>`).join("");
 $("#kistenListe").innerHTML = KISTEN.map((k) => `
   <article class="kiste">
+    <img class="bild" src="bilder/kiste-${k.id.toLowerCase()}.jpg" alt="Kiste ${k.id}: ${k.name}" loading="lazy">
     <div class="buchstabe">${k.id}</div>
     <h3>${k.name}</h3><div class="unter">${k.untertitel}</div>
     <p style="margin:0">${k.text}</p>
@@ -180,11 +182,11 @@ $("#extrasTabelle").innerHTML = "<tr><th>Artikel</th><th>Produzent</th><th class
     return `<tr><td>${p.name}, ${zahl(x.menge)} ${p.einheit}</td><td>${PRODUZENTEN[p.produzent].name}</td><td class="z">${euro(x.preis)}</td></tr>`; }).join("");
 
 // Produkte & Produzenten
-$("#produktListe").innerHTML = Object.values(PRODUKTE).map((p) => `
-  <article class="kiste"><h3 style="font-size:1.3rem">${p.name}</h3>
+$("#produktListe").innerHTML = Object.entries(PRODUKTE).map(([id, p]) => `
+  <article class="kiste"><img class="bild" src="bilder/${id}.jpg" alt="${p.name}" loading="lazy"><h3 style="font-size:1.3rem">${p.name}</h3>
   <div class="unter">${PRODUZENTEN[p.produzent].ort}</div><p style="margin:0">${p.text}</p></article>`).join("");
 $("#produzentenListe").innerHTML = Object.entries(PRODUZENTEN).map(([id, z]) => `
-  <article class="kiste"><h3 style="font-size:1.3rem">${z.name}</h3><div class="unter">${z.ort}</div>
+  <article class="kiste"><img class="bild" src="bilder/hof-${id}.jpg" alt="${z.ort}" loading="lazy"><h3 style="font-size:1.3rem">${z.name}</h3><div class="unter">${z.ort}</div>
   <p style="margin:0 0 10px">${z.text}</p>
   <p class="leise" style="margin:0;font-size:.9rem">Liefert: ${Object.values(PRODUKTE).filter((p) => p.produzent === id).map((p) => p.name).join(", ")}</p></article>`).join("");
 

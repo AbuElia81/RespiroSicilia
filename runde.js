@@ -4,10 +4,10 @@ const RUNDE = {
   titel: "Winterrunde 2026/27",
   stichtag: "2026-11-30T23:59:00",          // Bestellschluss
   lieferung: "Mitte Januar 2027",           // voraussichtliche Ausgabe der Kisten
-  organisator: "Nele Trippin",
+  organisator: "Nele Trpin",
   email: "respirosicilia@gmail.com",        // hierhin gehen die Bestellungen
   iban: "DE00 0000 0000 0000 0000 00",      // PLATZHALTER
-  kontoinhaber: "Nele Trippin",
+  kontoinhaber: "Nele Trpin",
   paypalme: "",                             // z. B. "https://paypal.me/deinname" (leer = ausblenden)
   transport: 280,                           // Palette Sizilien → Deutschland, pauschal in € (PLATZHALTER)
   abholpunkte: ["Bei mir zu Hause", "Gemeinsamer Treffpunkt (wird angesagt)"],

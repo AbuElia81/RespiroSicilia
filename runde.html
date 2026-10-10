@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Respiro Sicilia · Bestellliste</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="stil.css?v=1">
+<style>
+  @media print { header, .leiste-knoepfe, #einlesen, .x, .nichtdrucken { display: none !important; } section { padding: 10px 0; } }
+</style>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="breite">
+    <a class="logo" href="./">Respiro <em>Sicilia</em></a>
+    <nav><a href="./">Zur Bestellseite</a></nav>
+  </div>
+</header>
+
+<section>
+  <div class="breite">
+    <p class="marke">Organisator · <span id="rundenTitel"></span></p>
+    <h2>Bestellliste &amp; Abrechnung</h2>
+    <p class="leise" id="status"></p>
+
+    <div id="einlesen" class="summe" style="margin-bottom:26px">
+      <h3>Bestellungen einlesen</h3>
+      <p class="leise" style="margin-top:0">Kopiere die Bestell-E-Mails oder Messenger-Nachrichten hier hinein, auch mehrere auf einmal. Alle Zeilen mit <code>RESPIRO|…</code> werden übernommen. Eine zweite Bestellung mit derselben E-Mail ersetzt die erste.</p>
+      <textarea id="eingabe" placeholder="RESPIRO|Maria Rossi|maria@example.com|Bei mir zu Hause|A=1;X0=1|"></textarea>
+      <div class="leiste-knoepfe" style="margin-bottom:0">
+        <button class="knopf" id="uebernehmen">Übernehmen</button>
+        <span id="meldung" class="leise" style="align-self:center"></span>
+      </div>
+    </div>
+
+    <div class="karten" id="karten"></div>
+
+    <h3>Bestellungen</h3>
+    <div class="rollen"><table class="tabelle" id="bestellungen"></table></div>
+
+    <h3>Einkaufsliste je Produzent</h3>
+    <p class="leise" style="margin-top:0">Gesamtmengen aller Kisten und Einzelartikel, zum Weiterleiten an die Höfe.</p>
+    <div id="einkauf"></div>
+
+    <h3>Kisten packen</h3>
+    <div class="rollen"><table class="tabelle" id="packliste"></table></div>
+
+    <h3>Abrechnung</h3>
+    <div class="rollen"><table class="tabelle" id="abrechnung" style="max-width:560px"></table></div>
+
+    <div class="leiste-knoepfe">
+      <button class="knopf" onclick="window.print()">Drucken / als PDF</button>
+      <button class="knopf hell" id="csv">Bestellungen als CSV</button>
+      <button class="knopf hell" id="sicherung">Sicherung speichern</button>
+      <label class="knopf hell" style="margin:0">Sicherung laden<input type="file" id="laden" accept=".json" hidden></label>
+      <button class="knopf hell" id="leeren">Alles löschen</button>
+    </div>
+    <p class="leise nichtdrucken" style="font-size:.9rem">Die Daten liegen nur in diesem Browser auf diesem Gerät. Speichere zwischendurch eine Sicherung.</p>
+  </div>
+</section>
+
+<script src="runde.js?v=1"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const SCHLUESSEL = "respiro-bestellungen";
+const POS = positionen();
+const POSMAP = Object.fromEntries(POS.map((p) => [p.key, p]));
+let liste = [];
+try { liste = JSON.parse(localStorage.getItem(SCHLUESSEL)) || []; } catch { liste = []; }
+const speichern = () => { try { localStorage.setItem(SCHLUESSEL, JSON.stringify(liste)); } catch {} };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+$("#rundenTitel").textContent = RUNDE.titel;
+const ende = new Date(RUNDE.stichtag);
+$("#status").textContent = (new Date() > ende ? "Bestellschluss war am " : "Bestellschluss ist am ") +
+  ende.toLocaleString("de-DE", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " Uhr.";
+
+const betrag = (b) => Object.entries(b.mengen).reduce((s, [k, n]) => s + (POSMAP[k]?.preis || 0) * n, 0);
+const einkaufWert = (b) => Object.entries(b.mengen).reduce((s, [k, n]) => s + (POSMAP[k]?.einkauf || 0) * n, 0);
+
+$("#uebernehmen").addEventListener("click", () => {
+  const neu = liesBestellcodes($("#eingabe").value);
+  let ersetzt = 0;
+  neu.forEach((b) => {
+    const i = liste.findIndex((x) => x.email.toLowerCase() === b.email.toLowerCase());
+    if (i >= 0) { b.bezahlt = liste[i].bezahlt; liste[i] = b; ersetzt++; } else { b.bezahlt = false; liste.push(b); }
+  });
+  $("#meldung").textContent = neu.length ? `${neu.length} Bestellung(en) übernommen${ersetzt ? `, davon ${ersetzt} ersetzt` : ""}.` : "Keine Zeile mit RESPIRO|… gefunden.";
+  $("#eingabe").value = ""; speichern(); zeigen();
+});
+
+function zeigen() {
+  const summeSoll = liste.reduce((s, b) => s + betrag(b), 0);
+  const summeIst = liste.filter((b) => b.bezahlt).reduce((s, b) => s + betrag(b), 0);
+  const kisten = liste.reduce((s, b) => s + KISTEN.reduce((t, k) => t + (b.mengen[k.id] || 0), 0), 0);
+  $("#karten").innerHTML = [["Bestellungen", liste.length], ["Kisten", kisten], ["Soll", euro(summeSoll)], ["Bezahlt", euro(summeIst)]]
+    .map(([l, w]) => `<div class="karte"><span>${l}</span><b>${w}</b></div>`).join("");
+
+  // Bestellungen
+  $("#bestellungen").innerHTML = `<tr><th>Name</th><th>E-Mail</th><th>Abholung</th>${POS.map((p) => `<th class="z" title="${esc(p.titel)}">${p.key.startsWith("X") ? esc(PRODUKTE[EXTRAS[+p.key.slice(1)].produkt].name.split(" ")[0]) : "Kiste " + p.key}</th>`).join("")}<th class="z">Betrag</th><th>Bezahlt</th><th class="nichtdrucken"></th></tr>` +
+    (liste.map((b, i) => `<tr><td>${esc(b.name)}${b.notiz ? `<br><small class="leise">${esc(b.notiz)}</small>` : ""}</td><td>${esc(b.email)}</td><td>${esc(b.abholung)}</td>
+      ${POS.map((p) => `<td class="z">${b.mengen[p.key] || ""}</td>`).join("")}
+      <td class="z">${euro(betrag(b))}</td>
+      <td><input type="checkbox" data-bez="${i}" ${b.bezahlt ? "checked" : ""} style="width:auto;margin:0"></td>
+      <td class="nichtdrucken"><button class="x" data-weg="${i}" title="Löschen">✕</button></td></tr>`).join("") ||
+      `<tr><td colspan="${POS.length + 6}" class="leise">Noch keine Bestellungen eingelesen.</td></tr>`);
+
+  // Einkaufsliste
+  const mengen = {};
+  liste.forEach((b) => Object.entries(b.mengen).forEach(([k, n]) => {
+    const pos = POSMAP[k]; if (!pos) return;
+    Object.entries(pos.inhalt).forEach(([p, m]) => (mengen[p] = (mengen[p] || 0) + m * n));
+  }));
+  $("#einkauf").innerHTML = Object.entries(PRODUZENTEN).map(([id, z]) => {
+    const zeilen = Object.entries(PRODUKTE).filter(([p, d]) => d.produzent === id && mengen[p]);
+    if (!zeilen.length) return "";
+    const wert = zeilen.reduce((s, [p, d]) => s + d.einkauf * mengen[p], 0);
+    const text = `Ordine Respiro Sicilia – ${RUNDE.titel}\n` + zeilen.map(([p, d]) => `${zahl(mengen[p])} ${d.einheit} ${d.name}`).join("\n");
+    return `<div class="summe" style="margin-bottom:16px"><h3 style="margin-bottom:2px">${esc(z.name)}</h3><p class="leise" style="margin:0 0 10px">${esc(z.ort)}</p>
+      <table>${zeilen.map(([p, d]) => `<tr><td>${d.name}</td><td>${zahl(mengen[p])} ${d.einheit}</td><td>${euro(d.einkauf * mengen[p])}</td></tr>`).join("")}
+      <tr class="gesamt"><td>Summe Einkauf</td><td></td><td>${euro(wert)}</td></tr></table>
+      <p class="nichtdrucken" style="margin:12px 0 0"><button class="knopf hell" style="padding:7px 14px;font-size:.85rem" data-text="${esc(text)}">Liste kopieren</button></p></div>`;
+  }).join("") || `<p class="leise">Noch nichts zu bestellen.</p>`;
+
+  // Packliste
+  $("#packliste").innerHTML = `<tr><th>Position</th><th class="z">Anzahl</th><th>Inhalt je Stück</th></tr>` +
+    POS.map((p) => { const n = liste.reduce((s, b) => s + (b.mengen[p.key] || 0), 0); return n ? `<tr><td>${esc(p.titel)}</td><td class="z">${n}</td>
+      <td>${Object.entries(p.inhalt).map(([q, m]) => `${zahl(m)} ${PRODUKTE[q].einheit} ${PRODUKTE[q].name}`).join(", ")}</td></tr>` : ""; }).join("");
+
+  // Abrechnung
+  const ware = liste.reduce((s, b) => s + einkaufWert(b), 0);
+  const kosten = ware + (liste.length ? RUNDE.transport : 0);
+  const saldo = summeSoll - kosten;
+  const offen = liste.filter((b) => !b.bezahlt);
+  $("#abrechnung").innerHTML = `
+    <tr><td>Einnahmen (alle Bestellungen)</td><td class="z">${euro(summeSoll)}</td></tr>
+    <tr><td>davon bereits bezahlt</td><td class="z">${euro(summeIst)}</td></tr>
+    <tr><td>Einkauf bei den Produzenten</td><td class="z">− ${euro(ware)}</td></tr>
+    <tr><td>Transport (Palette, pauschal)</td><td class="z">− ${euro(liste.length ? RUNDE.transport : 0)}</td></tr>
+    <tr><td><b>${saldo >= 0 ? "Überschuss" : "Fehlbetrag"}</b></td><td class="z"><b style="color:${saldo >= 0 ? "var(--blatt)" : "var(--orange-dunkel)"}">${euro(saldo)}</b></td></tr>
+    <tr><td>Kosten je Kiste/Position im Schnitt</td><td class="z">${liste.length ? euro(kosten / Math.max(1, liste.reduce((s, b) => s + Object.values(b.mengen).reduce((a, c) => a + c, 0), 0))) : "–"}</td></tr>
+    <tr><td colspan="2"><b>Noch offen (${offen.length}):</b> ${offen.map((b) => `${esc(b.name)} ${euro(betrag(b))}`).join(" · ") || "keine"}</td></tr>`;
+}
+
+document.addEventListener("click", (e) => {
+  const w = e.target.closest("[data-weg]");
+  if (w && confirm(`Bestellung von ${liste[w.dataset.weg].name} löschen?`)) { liste.splice(w.dataset.weg, 1); speichern(); zeigen(); }
+  const t = e.target.closest("[data-text]");
+  if (t) { navigator.clipboard?.writeText(t.dataset.text); t.textContent = "Kopiert ✓"; }
+});
+document.addEventListener("change", (e) => {
+  if (e.target.dataset.bez !== undefined) { liste[e.target.dataset.bez].bezahlt = e.target.checked; speichern(); zeigen(); }
+});
+
+function herunterladen(name, inhalt, typ) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([inhalt], { type: typ })); a.download = name; a.click();
+}
+$("#csv").addEventListener("click", () => {
+  const kopf = ["Name", "E-Mail", "Abholung", ...POS.map((p) => p.titel), "Betrag", "Bezahlt", "Anmerkung"];
+  const zeilen = liste.map((b) => [b.name, b.email, b.abholung, ...POS.map((p) => b.mengen[p.key] || 0), betrag(b).toFixed(2).replace(".", ","), b.bezahlt ? "ja" : "nein", b.notiz]);
+  herunterladen("respiro-bestellungen.csv", "﻿" + [kopf, ...zeilen].map((z) => z.map((f) => `"${String(f).replace(/"/g, '""')}"`).join(";")).join("\n"), "text/csv");
+});
+$("#sicherung").addEventListener("click", () => herunterladen("respiro-sicherung.json", JSON.stringify(liste, null, 1), "application/json"));
+$("#laden").addEventListener("change", async (e) => {
+  try { liste = JSON.parse(await e.target.files[0].text()); speichern(); zeigen(); } catch { alert("Die Datei konnte nicht gelesen werden."); }
+});
+$("#leeren").addEventListener("click", () => { if (confirm("Wirklich alle Bestellungen löschen?")) { liste = []; speichern(); zeigen(); } });
+zeigen();
+</script>
+</body>
+</html>

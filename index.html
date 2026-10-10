@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Respiro Sicilia · Bestellrunde</title>
+<meta name="description" content="Gemeinsame Bestellrunde für Zitrusfrüchte, Mandeln und Olivenöl direkt von sizilianischen Produzenten.">
+<link rel="stylesheet" href="stil.css?v=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='38' fill='%23d9622b'/><path d='M50 17c8-12 22-12 28-6-10 2-18 6-28 6z' fill='%233f5a2c'/></svg>">
+</head>
+<body>
+
+<header class="kopf">
+  <div class="breite">
+    <a class="logo" href="./">Respiro <em>Sicilia</em></a>
+    <nav>
+      <a href="#kisten">Kisten</a>
+      <a class="breit" href="#produzenten">Produzenten</a>
+      <a class="breit" href="#ueber">Über mich</a>
+      <a href="#bestellen">Bestellen</a>
+    </nav>
+  </div>
+</header>
+
+<section class="buehne">
+  <div class="breite">
+    <div>
+      <p class="marke">Einkaufsgemeinschaft · <span id="rundenTitel"></span></p>
+      <h1>Ein Atemzug <em>Sizilien</em> in der Kiste.</h1>
+      <p class="gross">Wir bestellen gemeinsam Zitrusfrüchte, Mandeln und Olivenöl direkt bei kleinen Höfen in Sizilien. Nach dem Bestellschluss geht alles gebündelt auf eine Palette. Das ist günstiger als Einzelpakete und schont die Umwelt.</p>
+      <p><a class="knopf" href="#bestellen">Jetzt mitbestellen</a> &nbsp; <a class="knopf hell" href="#kisten">Kisten ansehen</a></p>
+    </div>
+    <div class="uhr" id="uhr">
+      <p class="marke">Bestellschluss</p>
+      <div id="stichtagText" style="font-weight:800"></div>
+      <div class="zahlen" id="zahlen"></div>
+      <p class="leise" style="margin:0">Ausgabe der Kisten: <b id="lieferText"></b></p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="breite">
+    <p class="marke">So funktioniert's</p>
+    <h2>Vier Schritte bis zur Kiste</h2>
+    <div class="schritte">
+      <div class="schritt"><h3>Bestellen</h3><p>Kiste auswählen, Name und E-Mail eintragen und die Bestellung abschicken.</p></div>
+      <div class="schritt"><h3>Überweisen</h3><p>Den Betrag per Überweisung zahlen. Erst mit dem Geld kann ich in Sizilien einkaufen.</p></div>
+      <div class="schritt"><h3>Ernte &amp; Palette</h3><p>Nach Bestellschluss bestelle ich alles gesammelt bei den Höfen. Es wird frisch geerntet und auf eine Palette geladen.</p></div>
+      <div class="schritt"><h3>Abholen</h3><p>Die Kisten werden an einem Termin ausgegeben, bei mir oder an einem gemeinsamen Treffpunkt.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="kisten" style="background:var(--papier)">
+  <div class="breite">
+    <p class="marke">Die drei Optionen</p>
+    <h2>Kiste A, B oder C, je etwa 11 kg</h2>
+    <p class="leise">Jede Kiste wird fertig gepackt ausgegeben. Du kannst auch mehrere Kisten bestellen.</p>
+    <div class="kisten" id="kistenListe"></div>
+    <h3 style="margin-top:44px">Auch einzeln erhältlich</h3>
+    <div class="rollen"><table class="tabelle" id="extrasTabelle"></table></div>
+  </div>
+</section>
+
+<section id="produkte">
+  <div class="breite">
+    <p class="marke">Die Produkte</p>
+    <h2>Was in den Kisten steckt</h2>
+    <div class="kisten" id="produktListe"></div>
+  </div>
+</section>
+
+<section id="produzenten" style="background:var(--papier)">
+  <div class="breite">
+    <p class="marke">Die Produzenten</p>
+    <h2>Von wem die Ware kommt</h2>
+    <p class="leise">Wir kaufen direkt bei den Höfen und ohne Zwischenhandel. So bleibt mehr Geld bei den Menschen, die die Arbeit machen.</p>
+    <div class="kisten" id="produzentenListe"></div>
+  </div>
+</section>
+
+<section id="ueber">
+  <div class="breite" style="max-width:780px">
+    <p class="marke">Über mich</p>
+    <h2>Wer hinter Respiro Sicilia steht</h2>
+    <p><b>PLATZHALTER:</b> Hier stellst du dich vor: wer du bist, woher deine Verbindung nach Sizilien kommt, wie du die Höfe kennengelernt hast und warum du diese Einkaufsgemeinschaft organisierst.</p>
+    <p class="leise">„Respiro“ heißt auf Italienisch „Atem“ oder „Durchatmen“: ein Stück Sizilien, das im deutschen Winter ankommt.</p>
+  </div>
+</section>
+
+<section id="bestellen" style="background:var(--papier)">
+  <div class="breite">
+    <p class="marke">Bestellen</p>
+    <h2>Deine Bestellung</h2>
+    <div id="geschlossen" class="hinweis" hidden>Die Bestellrunde ist geschlossen. Die nächste Runde wird rechtzeitig angekündigt.</div>
+    <form class="bestellung" id="formular">
+      <div>
+        <div id="mengenFelder"></div>
+        <hr style="border:0;border-top:1px solid var(--linie);margin:22px 0">
+        <label>Name <input name="name" required autocomplete="name"></label>
+        <label>E-Mail <input name="email" type="email" required autocomplete="email"></label>
+        <label>Abholung <select name="abholung" id="abholung"></select></label>
+        <label>Anmerkung (optional) <textarea name="notiz" placeholder="z. B. Abholung durch jemand anderen"></textarea></label>
+        <label class="check"><input type="checkbox" required> Ich überweise den Betrag bis zum Bestellschluss. Ohne Zahlung kann die Bestellung nicht berücksichtigt werden.</label>
+      </div>
+      <div>
+        <div class="summe">
+          <h3>Übersicht</h3>
+          <table id="summe"></table>
+          <p style="margin:18px 0 0"><button class="knopf" id="absenden" type="submit">Bestellung abschließen</button></p>
+        </div>
+        <div class="fertig" id="fertig" hidden style="margin-top:20px">
+          <h3>Fast geschafft!</h3>
+          <p>1. Schick die Bestellung ab. Dein E-Mail-Programm öffnet sich mit dem fertigen Text.</p>
+          <p><a class="knopf" id="mailLink" href="#">Bestellung per E-Mail senden</a></p>
+          <p class="leise" style="font-size:.9rem">Wenn sich kein Mailprogramm öffnet, kopiere diese Zeile und schick sie per E-Mail oder Messenger an <span class="orgMail"></span>:</p>
+          <p><input id="codeFeld" readonly onclick="this.select()"> <button class="knopf hell" type="button" id="kopieren" style="margin-top:8px;padding:8px 16px">Kopieren</button></p>
+          <p>2. Überweise bitte den Betrag:</p>
+          <dl id="bank"></dl>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="breite" style="max-width:780px">
+    <p class="marke">Fragen</p>
+    <h2>Gut zu wissen</h2>
+    <details><summary>Warum gibt es einen Bestellschluss?</summary><p>Alle Bestellungen werden gesammelt und dann auf einmal bei den Höfen bestellt. Nur so lohnt sich eine Palette, und die Höfe können genau so viel ernten, wie gebraucht wird.</p></details>
+    <details><summary>Wie bezahle ich?</summary><p>Per Überweisung auf das angegebene Konto, mit deinem Namen im Verwendungszweck. Eine Kasse oder einen PayPal-Checkout gibt es nicht.</p></details>
+    <details><summary>Kann sich der Inhalt der Kisten ändern?</summary><p>Ja. Es sind Naturprodukte und es zählt, was gerade geerntet wird. Wenn etwas ausfällt, wird es durch Gleichwertiges ersetzt oder der Betrag erstattet.</p></details>
+    <details><summary>Wie lange halten die Früchte?</summary><p>Unbehandelte Zitrusfrüchte halten kühl und luftig gelagert zwei bis drei Wochen. Mandeln und Olivenöl halten viele Monate.</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="breite">
+    <p><b>Respiro Sicilia</b> ist eine private Einkaufsgemeinschaft unter Freunden. Organisiert von <span class="orgName"></span>, Kontakt: <a class="orgMailLink" href="#"></a></p>
+    <p><a href="runde.html">Für den Organisator: Bestellliste &amp; Abrechnung</a></p>
+  </div>
+</footer>
+
+<script src="runde.js?v=1"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const ende = new Date(RUNDE.stichtag);
+$("#rundenTitel").textContent = RUNDE.titel;
+$("#stichtagText").textContent = ende.toLocaleString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " Uhr";
+$("#lieferText").textContent = RUNDE.lieferung;
+document.querySelectorAll(".orgName").forEach((e) => (e.textContent = RUNDE.organisator));
+document.querySelectorAll(".orgMail").forEach((e) => (e.textContent = RUNDE.email));
+document.querySelectorAll(".orgMailLink").forEach((e) => { e.textContent = RUNDE.email; e.href = "mailto:" + RUNDE.email; });
+
+function uhr() {
+  const rest = ende - new Date();
+  if (rest <= 0) {
+    $("#zahlen").innerHTML = "<div><b>Geschlossen</b></div>";
+    $("#geschlossen").hidden = false; $("#formular").hidden = true;
+    return;
+  }
+  const t = Math.floor(rest / 864e5), h = Math.floor(rest / 36e5) % 24, m = Math.floor(rest / 6e4) % 60;
+  $("#zahlen").innerHTML = [[t, "Tage"], [h, "Std."], [m, "Min."]].map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join("");
+}
+uhr(); setInterval(uhr, 30000);
+
+// Kisten
+const inhaltListe = (inhalt) => Object.entries(inhalt).map(([p, m]) => `<li>${zahl(m)} ${PRODUKTE[p].einheit} ${PRODUKTE[p].name}</li>`).join("");
+$("#kistenListe").innerHTML = KISTEN.map((k) => `
+  <article class="kiste">
+    <div class="buchstabe">${k.id}</div>
+    <h3>${k.name}</h3><div class="unter">${k.untertitel}</div>
+    <p style="margin:0">${k.text}</p>
+    <ul>${inhaltListe(k.inhalt)}</ul>
+    <div class="preis">${euro(k.preis)}</div>
+  </article>`).join("");
+$("#extrasTabelle").innerHTML = "<tr><th>Artikel</th><th>Produzent</th><th class='z'>Preis</th></tr>" +
+  EXTRAS.filter((x) => x.verfuegbar).map((x) => { const p = PRODUKTE[x.produkt];
+    return `<tr><td>${p.name}, ${zahl(x.menge)} ${p.einheit}</td><td>${PRODUZENTEN[p.produzent].name}</td><td class="z">${euro(x.preis)}</td></tr>`; }).join("");
+
+// Produkte & Produzenten
+$("#produktListe").innerHTML = Object.values(PRODUKTE).map((p) => `
+  <article class="kiste"><h3 style="font-size:1.3rem">${p.name}</h3>
+  <div class="unter">${PRODUZENTEN[p.produzent].ort}</div><p style="margin:0">${p.text}</p></article>`).join("");
+$("#produzentenListe").innerHTML = Object.entries(PRODUZENTEN).map(([id, z]) => `
+  <article class="kiste"><h3 style="font-size:1.3rem">${z.name}</h3><div class="unter">${z.ort}</div>
+  <p style="margin:0 0 10px">${z.text}</p>
+  <p class="leise" style="margin:0;font-size:.9rem">Liefert: ${Object.values(PRODUKTE).filter((p) => p.produzent === id).map((p) => p.name).join(", ")}</p></article>`).join("");
+
+// Formular
+const POS = positionen();
+const mengen = Object.fromEntries(POS.map((p) => [p.key, 0]));
+$("#abholung").innerHTML = RUNDE.abholpunkte.map((a) => `<option>${a}</option>`).join("");
+$("#mengenFelder").innerHTML = POS.map((p) => `
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--linie)">
+    <div><b>${p.titel}</b><br><span class="leise">${euro(p.preis)}</span></div>
+    <div class="menge" style="margin:0"><button type="button" data-k="${p.key}" data-d="-1" aria-label="weniger">−</button><output id="m-${p.key}">0</output><button type="button" data-k="${p.key}" data-d="1" aria-label="mehr">+</button></div>
+  </div>`).join("");
+$("#mengenFelder").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-k]"); if (!b) return;
+  mengen[b.dataset.k] = Math.max(0, mengen[b.dataset.k] + Number(b.dataset.d));
+  $("#m-" + b.dataset.k).textContent = mengen[b.dataset.k];
+  $("#fertig").hidden = true; summe();
+});
+function gesamt() { return POS.reduce((s, p) => s + p.preis * mengen[p.key], 0); }
+function summe() {
+  const zeilen = POS.filter((p) => mengen[p.key] > 0).map((p) => `<tr><td>${mengen[p.key]} × ${p.titel}</td><td>${euro(p.preis * mengen[p.key])}</td></tr>`);
+  $("#summe").innerHTML = (zeilen.join("") || `<tr><td class="leise">Noch nichts ausgewählt</td><td></td></tr>`) +
+    `<tr class="gesamt"><td>Gesamt</td><td>${euro(gesamt())}</td></tr>`;
+  $("#absenden").disabled = gesamt() === 0;
+}
+summe();
+
+$("#formular").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const b = { name: f.get("name"), email: f.get("email"), abholung: f.get("abholung"), notiz: f.get("notiz"), mengen };
+  const code = bestellcode(b);
+  const zweck = `Respiro ${b.name}`;
+  const text = [
+    `Hallo ${RUNDE.organisator},`, "", `hier ist meine Bestellung für die ${RUNDE.titel}:`, "",
+    ...POS.filter((p) => mengen[p.key] > 0).map((p) => `${mengen[p.key]} × ${p.titel} = ${euro(p.preis * mengen[p.key])}`),
+    `Gesamt: ${euro(gesamt())}`, "", `Abholung: ${b.abholung}`, b.notiz ? `Anmerkung: ${b.notiz}` : "",
+    "", "Bestellcode (bitte nicht ändern):", code, "", `Viele Grüße`, b.name,
+  ].join("\n");
+  $("#mailLink").href = `mailto:${RUNDE.email}?subject=${encodeURIComponent("Bestellung Respiro Sicilia: " + b.name)}&body=${encodeURIComponent(text)}`;
+  $("#codeFeld").value = code;
+  $("#bank").innerHTML = `<dt>Empfänger</dt><dd>${RUNDE.kontoinhaber}</dd><dt>IBAN</dt><dd>${RUNDE.iban}</dd>
+    <dt>Betrag</dt><dd>${euro(gesamt())}</dd><dt>Zweck</dt><dd>${zweck}</dd>` +
+    (RUNDE.paypalme ? `<dt>PayPal</dt><dd><a href="${RUNDE.paypalme}/${gesamt()}" target="_blank" rel="noopener">${RUNDE.paypalme}</a></dd>` : "");
+  $("#fertig").hidden = false;
+  $("#fertig").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+$("#kopieren").addEventListener("click", () => { $("#codeFeld").select(); navigator.clipboard?.writeText($("#codeFeld").value); $("#kopieren").textContent = "Kopiert ✓"; });
+</script>
+</body>
+</html>
